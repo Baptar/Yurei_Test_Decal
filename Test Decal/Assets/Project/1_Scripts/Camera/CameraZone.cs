@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class CameraZone : MonoBehaviour
@@ -7,17 +8,22 @@ public class CameraZone : MonoBehaviour
     // The camera linked to this area
     public Camera zoneCamera; 
     
-    [Header("Options")]
-    [SerializeField] private bool deactivateCameraOnStart = false;
-    [SerializeField] private bool followPlayer;
-    
+    [Header("ACTIVATE / DEACTIVATE ELEMENTS")]
     [Tooltip("these gameObjects are activated / deactivated when player enters / leave the zone")]
+    [SerializeField] private bool deactivateCameraOnStart = false;
     [SerializeField] private GameObject[] objectToActivate;
     
-    [Header("RenderTexture Options")]
-    [SerializeField] private RawImage _renderTexture;
+    [Header("FOLLOW PLAYER")]
+    [SerializeField] private bool followPlayer;
+    [Tooltip("the local position of the camera if follow player in this zone")]
+    [SerializeField] private Vector3 zonePosition = Vector3.zero;
+    [SerializeField] private Ease easeFunction = Ease.InOutExpo;
+    [SerializeField] private float easeDuration = 0.5f;
+    
+    [Header("RENDER TEXTURE OPTIONS")]
+    [SerializeField] private RawImage renderTexture;
     [Tooltip("The Color of the RenderTexture when player not in the zone")]
-    [SerializeField] private Color _colorDeactivated;
+    [SerializeField] private Color colorDeactivated;
     
     private void Start()
     {
@@ -38,7 +44,7 @@ public class CameraZone : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            CameraManager.Instance.SwitchTo(zoneCamera, followPlayer);
+            CameraManager.Instance.SwitchTo(zoneCamera, followPlayer, zonePosition, easeFunction, easeDuration);
             LightZoneManager.Instance.OnEnterNewZone(this);
             ManagerObjectToActivate(true);
             ManageRenderTexturesLight(true);
@@ -53,8 +59,8 @@ public class CameraZone : MonoBehaviour
     
     public void ManageRenderTexturesLight(bool activate)
     {
-        if (_renderTexture == null) return;
+        if (renderTexture == null) return;
 
-        _renderTexture.DOColor(activate? Color.white : _colorDeactivated, 0.2f);
+        renderTexture.DOColor(activate? Color.white : colorDeactivated, 0.2f);
     }
 }

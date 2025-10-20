@@ -1,8 +1,10 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance;
+    [SerializeField] private GameObject mainCamera;
     public Camera CurrentCamera { get; private set; }
     public Camera PreviousCamera { get; private set; }
 
@@ -14,7 +16,7 @@ public class CameraManager : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void SwitchTo(Camera newCam, bool followPlayer = false)
+    public void SwitchTo(Camera newCam, bool followPlayer = false, Vector3 zonePosition = default(Vector3), Ease easeFunction = Ease.InOutExpo, float easeDuration = 0.5f)
     {
         if (newCam == CurrentCamera) return;
 
@@ -23,9 +25,11 @@ public class CameraManager : MonoBehaviour
         PreviousCamera = CurrentCamera;
         CurrentCamera = newCam;
 
+        if (mainCamera == null) return;
+        
         if (followPlayer)
         {
-            
+            mainCamera.transform.DOLocalMove(zonePosition, easeDuration).SetEase(easeFunction);            
         }
     }
 }
